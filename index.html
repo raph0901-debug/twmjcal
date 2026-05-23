@@ -211,6 +211,34 @@
             padding: 15px;
             text-align: center;
         }
+        .name-settings {
+            padding: 0;
+            overflow: hidden;
+        }
+        .name-settings summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none;
+        }
+        .name-settings summary::-webkit-details-marker {
+            display: none;
+        }
+        .name-settings summary::after {
+            content: '展開';
+            color: #718096;
+            font-size: 0.85rem;
+        }
+        .name-settings[open] summary::after {
+            content: '收合';
+        }
+        .name-settings-body {
+            padding: 0 20px 20px;
+        }
         .name-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -262,6 +290,15 @@
             .control-section,
             .history-section {
                 padding: 12px;
+            }
+            .name-settings {
+                padding: 0;
+            }
+            .name-settings summary {
+                padding: 12px;
+            }
+            .name-settings-body {
+                padding: 0 12px 12px;
             }
             .player-name {
                 font-size: 1rem;
@@ -333,43 +370,45 @@
     <!-- ================= 分頁一：當局拉莊計分 ================= -->
     <div id="game-tab" class="tab-content active">
         <!-- 玩家名稱設定 -->
-        <div class="control-section">
-            <h3 style="margin-top:0;">玩家名稱設定</h3>
-            <div class="name-grid">
-                <label class="name-field">東家
-                    <input type="text" id="name-東" placeholder="東家" oninput="renamePlayer('東', this.value)">
-                </label>
-                <label class="name-field">南家
-                    <input type="text" id="name-南" placeholder="南家" oninput="renamePlayer('南', this.value)">
-                </label>
-                <label class="name-field">西家
-                    <input type="text" id="name-西" placeholder="西家" oninput="renamePlayer('西', this.value)">
-                </label>
-                <label class="name-field">北家
-                    <input type="text" id="name-北" placeholder="北家" oninput="renamePlayer('北', this.value)">
-                </label>
+        <details class="control-section name-settings">
+            <summary>玩家名稱設定</summary>
+            <div class="name-settings-body">
+                <div class="name-grid">
+                    <label class="name-field">玩家1
+                        <input type="text" id="name-東" placeholder="玩家1" oninput="renamePlayer('東', this.value)">
+                    </label>
+                    <label class="name-field">玩家2
+                        <input type="text" id="name-南" placeholder="玩家2" oninput="renamePlayer('南', this.value)">
+                    </label>
+                    <label class="name-field">玩家3
+                        <input type="text" id="name-西" placeholder="玩家3" oninput="renamePlayer('西', this.value)">
+                    </label>
+                    <label class="name-field">玩家4
+                        <input type="text" id="name-北" placeholder="玩家4" oninput="renamePlayer('北', this.value)">
+                    </label>
+                </div>
             </div>
-        </div>
+        </details>
 
         <!-- 實時四家拉莊狀態 -->
         <div class="player-grid">
             <div class="player-card is-dealer" id="card-東">
-                <div class="player-name" id="display-name-東">東家 (莊)</div>
-                <div id="status-東" class="player-status-text">連莊中</div>
+                <div class="player-name" id="display-name-東">玩家1</div>
+                <div id="status-東" class="player-status-text">莊家</div>
                 <div id="pool-東" class="debt-pool-val" style="color:#ecc94b;">0 番</div>
             </div>
             <div class="player-card" id="card-南">
-                <div class="player-name" id="display-name-南">南家</div>
+                <div class="player-name" id="display-name-南">玩家2</div>
                 <div id="status-南" class="player-status-text">閒家</div>
                 <div id="pool-南" class="debt-pool-val">0 番</div>
             </div>
             <div class="player-card" id="card-西">
-                <div class="player-name" id="display-name-西">西家</div>
+                <div class="player-name" id="display-name-西">玩家3</div>
                 <div id="status-西" class="player-status-text">閒家</div>
                 <div id="pool-西" class="debt-pool-val">0 番</div>
             </div>
             <div class="player-card" id="card-北">
-                <div class="player-name" id="display-name-北">北家</div>
+                <div class="player-name" id="display-name-北">玩家4</div>
                 <div id="status-北" class="player-status-text">閒家</div>
                 <div id="pool-北" class="debt-pool-val">0 番</div>
             </div>
@@ -377,27 +416,27 @@
 
         <!-- 動態割禾青專區 -->
         <div id="surrenderArea" class="surrender-container" style="display: none;">
-            <!-- 東家割禾青 -->
+            <!-- 玩家1割禾青 -->
             <div id="surrenderBox-東" class="surrender-box" style="display:none;">
-                <strong id="surrender-title-東" style="color:var(--accent);">東家可選擇清算</strong>
+                <strong id="surrender-title-東" style="color:var(--accent);">玩家1可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-東" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('東')">割禾青 (全數認輸離場)</button>
             </div>
-            <!-- 南家割禾青 -->
+            <!-- 玩家2割禾青 -->
             <div id="surrenderBox-南" class="surrender-box" style="display:none;">
-                <strong id="surrender-title-南" style="color:var(--accent);">南家可選擇清算</strong>
+                <strong id="surrender-title-南" style="color:var(--accent);">玩家2可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-南" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('南')">割禾青 (全數認輸離場)</button>
             </div>
-            <!-- 西家割禾青 -->
+            <!-- 玩家3割禾青 -->
             <div id="surrenderBox-西" class="surrender-box" style="display:none;">
-                <strong id="surrender-title-西" style="color:var(--accent);">西家可選擇清算</strong>
+                <strong id="surrender-title-西" style="color:var(--accent);">玩家3可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-西" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('西')">割禾青 (全數認輸離場)</button>
             </div>
-            <!-- 北家割禾青 -->
+            <!-- 玩家4割禾青 -->
             <div id="surrenderBox-北" class="surrender-box" style="display:none;">
-                <strong id="surrender-title-北" style="color:var(--accent);">北家可選擇清算</strong>
+                <strong id="surrender-title-北" style="color:var(--accent);">玩家4可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-北" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('北')">割禾青 (全數認輸離場)</button>
             </div>
@@ -409,10 +448,10 @@
             <div class="form-group choice-row">
                 <label id="winnerLabel">贏家：</label>
                 <div class="choice-grid" id="winnerChoices">
-                    <button type="button" class="choice-btn" id="winner-option-東" onclick="selectWinner('東')">東家 (莊)</button>
-                    <button type="button" class="choice-btn" id="winner-option-南" onclick="selectWinner('南')">南家</button>
-                    <button type="button" class="choice-btn" id="winner-option-西" onclick="selectWinner('西')">西家</button>
-                    <button type="button" class="choice-btn" id="winner-option-北" onclick="selectWinner('北')">北家</button>
+                    <button type="button" class="choice-btn" id="winner-option-東" onclick="selectWinner('東')">玩家1</button>
+                    <button type="button" class="choice-btn" id="winner-option-南" onclick="selectWinner('南')">玩家2</button>
+                    <button type="button" class="choice-btn" id="winner-option-西" onclick="selectWinner('西')">玩家3</button>
+                    <button type="button" class="choice-btn" id="winner-option-北" onclick="selectWinner('北')">玩家4</button>
                 </div>
             </div>
             <div class="choice-hint" id="winnerHint">雙響時請選兩位食糊玩家。</div>
@@ -427,10 +466,10 @@
             <div class="form-group choice-row" id="loserGroup" style="display:none;">
                 <label>輸家 (放銃)：</label>
                 <div class="choice-grid" id="loserChoices">
-                    <button type="button" class="choice-btn" id="loser-option-東" onclick="selectLoser('東')">東家</button>
-                    <button type="button" class="choice-btn" id="loser-option-南" onclick="selectLoser('南')">南家</button>
-                    <button type="button" class="choice-btn" id="loser-option-西" onclick="selectLoser('西')">西家</button>
-                    <button type="button" class="choice-btn" id="loser-option-北" onclick="selectLoser('北')">北家</button>
+                    <button type="button" class="choice-btn" id="loser-option-東" onclick="selectLoser('東')">玩家1</button>
+                    <button type="button" class="choice-btn" id="loser-option-南" onclick="selectLoser('南')">玩家2</button>
+                    <button type="button" class="choice-btn" id="loser-option-西" onclick="selectLoser('西')">玩家3</button>
+                    <button type="button" class="choice-btn" id="loser-option-北" onclick="selectLoser('北')">玩家4</button>
                 </div>
             </div>
             <div class="form-group" id="singleScoreGroup">
@@ -475,22 +514,22 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong id="leader-name-東">東家 (固定莊)</strong></td>
+                    <td><strong id="leader-name-東">玩家1</strong></td>
                     <td id="total-東">0</td>
                     <td id="global-status-東"><span style="color:#ecc94b; font-weight:bold;">莊家</span></td>
                 </tr>
                 <tr>
-                    <td><strong id="leader-name-南">南家</strong></td>
+                    <td><strong id="leader-name-南">玩家2</strong></td>
                     <td id="total-南">0</td>
                     <td id="global-status-南">正常</td>
                 </tr>
                 <tr>
-                    <td><strong id="leader-name-西">西家</strong></td>
+                    <td><strong id="leader-name-西">玩家3</strong></td>
                     <td id="total-西">0</td>
                     <td id="global-status-西">正常</td>
                 </tr>
                 <tr>
-                    <td><strong id="leader-name-北">北家</strong></td>
+                    <td><strong id="leader-name-北">玩家4</strong></td>
                     <td id="total-北">0</td>
                     <td id="global-status-北">正常</td>
                 </tr>
@@ -504,7 +543,7 @@
 
 <script>
     const PLAYERS = ['東', '南', '西', '北'];
-    const DEFAULT_NAMES = { '東': '東家', '南': '南家', '西': '西家', '北': '北家' };
+    const DEFAULT_NAMES = { '東': '玩家1', '南': '玩家2', '西': '玩家3', '北': '玩家4' };
 
     // 橫跨多局的總分數儲存庫
     let globalScores = { '東': 0, '南': 0, '西': 0, '北': 0 };
@@ -545,24 +584,12 @@
         return customName || DEFAULT_NAMES[player];
     }
 
-    function formatPlayer(player, mode = 'normal') {
-        const name = getPlayerName(player);
-        const seatName = DEFAULT_NAMES[player];
-        const isCustom = name !== seatName;
-
-        if (player === '東' && mode === 'fixedDealer') {
-            return isCustom ? `${name} (${seatName}/固定莊)` : `${seatName} (固定莊)`;
-        }
-        if (player === '東' && mode === 'dealer') {
-            return isCustom ? `${name} (${seatName}/莊)` : `${seatName} (莊)`;
-        }
-        return isCustom ? `${name} (${seatName})` : seatName;
+    function formatPlayer(player) {
+        return getPlayerName(player);
     }
 
     function formatPlayerForLog(player) {
-        const name = getPlayerName(player);
-        const seatName = DEFAULT_NAMES[player];
-        return name === seatName ? seatName : `${name}(${seatName})`;
+        return getPlayerName(player);
     }
 
     function renamePlayer(player, value) {
@@ -898,7 +925,7 @@
                 ].join('；');
                 statusText.style.color = incomingDebts.length > 0 ? 'var(--accent)' : 'var(--success)';
             } else {
-                statusText.innerText = p === '東' ? '連莊中' : '閒家';
+                statusText.innerText = p === '東' ? '莊家' : '正常';
                 statusText.title = '';
                 statusText.style.color = '#718096';
             }
