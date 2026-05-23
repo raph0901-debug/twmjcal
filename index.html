@@ -70,15 +70,15 @@
         /* 四家狀態面板 */
         .player-grid {
             display: grid;
-            grid-template-columns: minmax(130px, 1fr) minmax(90px, 0.7fr) minmax(130px, 1fr);
-            grid-template-rows: auto minmax(72px, 0.65fr) auto;
+            grid-template-columns: minmax(118px, 1fr) minmax(120px, 1fr) minmax(118px, 1fr);
+            grid-template-rows: auto minmax(96px, 0.8fr) auto;
             grid-template-areas:
-                "top-left center top-right"
-                "left-gap center right-gap"
-                "bottom-left center bottom-right";
+                ". top ."
+                "left center right"
+                ". bottom .";
             gap: 12px;
             margin-bottom: 25px;
-            align-items: stretch;
+            align-items: center;
         }
         .table-slot {
             min-height: 118px;
@@ -92,14 +92,10 @@
             border-color: var(--primary);
             background: #edf2f7;
         }
-        .table-slot-top-left { grid-area: top-left; }
-        .table-slot-top-right { grid-area: top-right; }
-        .table-slot-bottom-left { grid-area: bottom-left; }
-        .table-slot-bottom-right { grid-area: bottom-right; }
-        .table-slot-top-left .player-card { --card-rotation: -3deg; }
-        .table-slot-top-right .player-card { --card-rotation: 3deg; }
-        .table-slot-bottom-left .player-card { --card-rotation: 3deg; }
-        .table-slot-bottom-right .player-card { --card-rotation: -3deg; }
+        .table-slot-top { grid-area: top; }
+        .table-slot-right { grid-area: right; }
+        .table-slot-bottom { grid-area: bottom; }
+        .table-slot-left { grid-area: left; }
         .table-center {
             grid-area: center;
             display: flex;
@@ -126,15 +122,13 @@
             cursor: grab;
             touch-action: none;
             user-select: none;
-            --card-rotation: 0deg;
-            transform: rotate(var(--card-rotation));
             transition: box-shadow 0.2s, transform 0.2s, opacity 0.2s;
         }
         .player-card:active { cursor: grabbing; }
         .player-card.is-dragging {
             opacity: 0.82;
             box-shadow: 0 10px 24px rgba(0,0,0,0.2);
-            transform: rotate(var(--card-rotation)) scale(1.03);
+            transform: scale(1.03);
             z-index: 10;
         }
         .player-card.is-dealer { border-color: #ecc94b; background: #fefcbf; }
@@ -338,7 +332,7 @@
                 font-size: 0.9rem;
             }
             .player-grid {
-                grid-template-columns: 1fr 0.55fr 1fr;
+                grid-template-columns: 1fr 0.7fr 1fr;
                 grid-template-rows: auto minmax(58px, 0.45fr) auto;
                 gap: 8px;
             }
@@ -461,29 +455,29 @@
 
         <!-- 實時四家拉莊狀態 -->
         <div class="player-grid" id="playerTable">
-            <div class="table-slot table-slot-top-left" id="slot-top-left" data-position="top-left">
+            <div class="table-slot table-slot-top" id="slot-top" data-position="top">
                 <div class="player-card is-dealer" id="card-東" data-player="東" draggable="true">
                     <div class="player-name" id="display-name-東">玩家1</div>
                     <div id="status-東" class="player-status-text">莊家</div>
                     <div id="pool-東" class="debt-pool-val" style="color:#ecc94b;">0 番</div>
                 </div>
             </div>
-            <div class="table-center">麻雀枱<br><span style="font-size:0.8rem; font-weight:normal;">按住玩家拖動換位</span></div>
-            <div class="table-slot table-slot-top-right" id="slot-top-right" data-position="top-right">
-                <div class="player-card" id="card-南" data-player="南" draggable="true">
-                    <div class="player-name" id="display-name-南">玩家2</div>
-                    <div id="status-南" class="player-status-text">正常</div>
-                    <div id="pool-南" class="debt-pool-val">0 番</div>
-                </div>
-            </div>
-            <div class="table-slot table-slot-bottom-left" id="slot-bottom-left" data-position="bottom-left">
+            <div class="table-slot table-slot-left" id="slot-left" data-position="left">
                 <div class="player-card" id="card-北" data-player="北" draggable="true">
                     <div class="player-name" id="display-name-北">玩家4</div>
                     <div id="status-北" class="player-status-text">正常</div>
                     <div id="pool-北" class="debt-pool-val">0 番</div>
                 </div>
             </div>
-            <div class="table-slot table-slot-bottom-right" id="slot-bottom-right" data-position="bottom-right">
+            <div class="table-center">麻雀枱<br><span style="font-size:0.8rem; font-weight:normal;">按住玩家拖動換位</span></div>
+            <div class="table-slot table-slot-right" id="slot-right" data-position="right">
+                <div class="player-card" id="card-南" data-player="南" draggable="true">
+                    <div class="player-name" id="display-name-南">玩家2</div>
+                    <div id="status-南" class="player-status-text">正常</div>
+                    <div id="pool-南" class="debt-pool-val">0 番</div>
+                </div>
+            </div>
+            <div class="table-slot table-slot-bottom" id="slot-bottom" data-position="bottom">
                 <div class="player-card" id="card-西" data-player="西" draggable="true">
                     <div class="player-name" id="display-name-西">玩家3</div>
                     <div id="status-西" class="player-status-text">正常</div>
@@ -634,12 +628,12 @@
     let selectedWinners = ['東'];
     let selectedHandType = '自摸';
     let selectedLoser = '南';
-    const TABLE_POSITIONS = ['top-left', 'top-right', 'bottom-right', 'bottom-left'];
+    const TABLE_POSITIONS = ['top', 'right', 'bottom', 'left'];
     let playerTablePositions = {
-        'top-left': '東',
-        'top-right': '南',
-        'bottom-right': '西',
-        'bottom-left': '北'
+        'top': '東',
+        'right': '南',
+        'bottom': '西',
+        'left': '北'
     };
     let draggedTablePlayer = null;
     let pointerDragState = null;
@@ -837,7 +831,7 @@
             const { card, startX, startY } = pointerDragState;
             const dx = event.clientX - startX;
             const dy = event.clientY - startY;
-            card.style.transform = `translate(${dx}px, ${dy}px) rotate(var(--card-rotation)) scale(1.03)`;
+            card.style.transform = `translate(${dx}px, ${dy}px) scale(1.03)`;
 
             clearTableDropTargets();
             const slot = getTableSlotFromPoint(event.clientX, event.clientY, card);
