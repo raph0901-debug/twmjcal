@@ -744,9 +744,12 @@
         }
 
         // 【功能：劈（反殺）邏輯判斷】
+        const activeWinnerSet = new Set(winners);
         let isPipiTriggered = false;
         for (let winner of winners) {
-            const pipiDebts = getIncomingDebts(winner);
+            // 雙響時若拉莊者同樣食糊，該拉莊關係不斷，也不觸發反劈。
+            const pipiDebts = getIncomingDebts(winner)
+                .filter(debt => !activeWinnerSet.has(debt.creditor));
             if (pipiDebts.length > 0) isPipiTriggered = true;
 
             for (let debt of pipiDebts) {
