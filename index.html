@@ -96,6 +96,10 @@
         .table-slot-top-right { grid-area: top-right; }
         .table-slot-bottom-left { grid-area: bottom-left; }
         .table-slot-bottom-right { grid-area: bottom-right; }
+        .table-slot-top-left .player-card { --card-rotation: -3deg; }
+        .table-slot-top-right .player-card { --card-rotation: 3deg; }
+        .table-slot-bottom-left .player-card { --card-rotation: 3deg; }
+        .table-slot-bottom-right .player-card { --card-rotation: -3deg; }
         .table-center {
             grid-area: center;
             display: flex;
@@ -122,13 +126,15 @@
             cursor: grab;
             touch-action: none;
             user-select: none;
+            --card-rotation: 0deg;
+            transform: rotate(var(--card-rotation));
             transition: box-shadow 0.2s, transform 0.2s, opacity 0.2s;
         }
         .player-card:active { cursor: grabbing; }
         .player-card.is-dragging {
             opacity: 0.82;
             box-shadow: 0 10px 24px rgba(0,0,0,0.2);
-            transform: scale(1.03);
+            transform: rotate(var(--card-rotation)) scale(1.03);
             z-index: 10;
         }
         .player-card.is-dealer { border-color: #ecc94b; background: #fefcbf; }
@@ -185,7 +191,7 @@
             flex-grow: 1;
         }
         .choice-grid.type-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
         }
         .choice-btn {
             padding: 10px;
@@ -533,6 +539,7 @@
                     <button type="button" class="choice-btn" id="type-option-自摸" onclick="selectHandType('自摸')">自摸</button>
                     <button type="button" class="choice-btn" id="type-option-食和" onclick="selectHandType('食和')">食和 (放銃)</button>
                     <button type="button" class="choice-btn" id="type-option-雙響" onclick="selectHandType('雙響')">雙響</button>
+                    <button type="button" class="choice-btn" id="type-option-特別" onclick="selectHandType('特別')">特別</button>
                 </div>
             </div>
             <div class="form-group choice-row" id="loserGroup" style="display:none;">
@@ -830,7 +837,7 @@
             const { card, startX, startY } = pointerDragState;
             const dx = event.clientX - startX;
             const dy = event.clientY - startY;
-            card.style.transform = `translate(${dx}px, ${dy}px) scale(1.03)`;
+            card.style.transform = `translate(${dx}px, ${dy}px) rotate(var(--card-rotation)) scale(1.03)`;
 
             clearTableDropTargets();
             const slot = getTableSlotFromPoint(event.clientX, event.clientY, card);
@@ -858,7 +865,7 @@
     }
 
     function toggleLoserField() {
-        document.getElementById('loserGroup').style.display = selectedHandType === '自摸' ? 'none' : 'flex';
+        document.getElementById('loserGroup').style.display = (selectedHandType === '食和' || selectedHandType === '雙響') ? 'flex' : 'none';
     }
 
     function chooseFirstAvailableLoser() {
@@ -912,7 +919,7 @@
             loserBtn.classList.toggle('disabled', selectedWinners.includes(p));
         }
 
-        for (let type of ['自摸', '食和', '雙響']) {
+        for (let type of ['自摸', '食和', '雙響', '特別']) {
             document.getElementById(`type-option-${type}`).classList.toggle('active', selectedHandType === type);
         }
 
@@ -943,15 +950,17 @@
         const loser = selectedLoser;
         const winnerScores = getSelectedScores(type, winners);
         const totalWinScore = winners.reduce((sum, winner) => sum + (winnerScores[winner] || 0), 0);
+        const needsLoser = type === '食和' || type === '雙響';
+        const usesLaZhuang = type !== '特別';
 
         if (type === '雙響' && winners.length !== 2) return alert('雙響需要選擇兩位食糊玩家');
         if (type !== '雙響' && winners.length !== 1) return alert('請選擇一位贏家');
-        if (type !== '自摸' && winners.includes(loser)) return alert('贏家輸家不能相同');
+        if (needsLoser && winners.includes(loser)) return alert('贏家輸家不能相同');
         if (winners.some(winner => (winnerScores[winner] || 0) <= 0)) return alert('請為每位贏家輸入有效番數');
 
         // 先計算當局的基本輸贏（計入總分榜）
         let roundPnl = { '東': 0, '南': 0, '西': 0, '北': 0 };
-        if (type === '自摸') {
+        if (type === '自摸' || type === '特別') {
             const winner = winners[0];
             const baseScore = winnerScores[winner];
             roundPnl[winner] += (baseScore * 3);
@@ -968,25 +977,27 @@
         // 【功能：劈（反殺）邏輯判斷】
         const activeWinnerSet = new Set(winners);
         let isPipiTriggered = false;
-        for (let winner of winners) {
-            // 雙響時若拉莊者同樣食糊，該拉莊關係不斷，也不觸發反劈。
-            const pipiDebts = getIncomingDebts(winner)
-                .filter(debt => !activeWinnerSet.has(debt.creditor));
-            if (pipiDebts.length > 0) isPipiTriggered = true;
+        if (usesLaZhuang) {
+            for (let winner of winners) {
+                // 雙響時若拉莊者同樣食糊，該拉莊關係不斷，也不觸發反劈。
+                const pipiDebts = getIncomingDebts(winner)
+                    .filter(debt => !activeWinnerSet.has(debt.creditor));
+                if (pipiDebts.length > 0) isPipiTriggered = true;
 
-            for (let debt of pipiDebts) {
-                const pipiBonus = roundDown(debt.amount / 2); // 反殺成功，拉莊累積債務直接砍半
-                roundPnl[winner] += pipiBonus;
-                roundPnl[debt.creditor] -= pipiBonus;
+                for (let debt of pipiDebts) {
+                    const pipiBonus = roundDown(debt.amount / 2); // 反殺成功，拉莊累積債務直接砍半
+                    roundPnl[winner] += pipiBonus;
+                    roundPnl[debt.creditor] -= pipiBonus;
 
-                debtHistory.push({
-                    text: `${formatPlayerForLog(winner)}成功「劈（反殺復仇）」！`,
-                    detail: `原本被${formatPlayerForLog(debt.creditor)}拉莊累積 ${debt.amount} 番，直接砍半結算！`,
-                    score: `反殺獎勵 (+${pipiBonus})`
-                });
+                    debtHistory.push({
+                        text: `${formatPlayerForLog(winner)}成功「劈（反殺復仇）」！`,
+                        detail: `原本被${formatPlayerForLog(debt.creditor)}拉莊累積 ${debt.amount} 番，直接砍半結算！`,
+                        score: `反殺獎勵 (+${pipiBonus})`
+                    });
 
-                // 解除贏家對該拉莊者的被拉狀態
-                laZhuangPools[debt.creditor][winner] = 0;
+                    // 解除贏家對該拉莊者的被拉狀態
+                    laZhuangPools[debt.creditor][winner] = 0;
+                }
             }
         }
 
@@ -995,8 +1006,10 @@
             globalScores[p] += roundPnl[p];
         }
 
-        // 雙響會保留兩位食糊者原本拉出的莊；其他未和牌拉莊者則斷莊。
-        clearInactiveCreditors(winners);
+        if (usesLaZhuang) {
+            // 雙響會保留兩位食糊者原本拉出的莊；其他未和牌拉莊者則斷莊。
+            clearInactiveCreditors(winners);
+        }
 
         if (type === '食和') {
             const winner = winners[0];
@@ -1024,6 +1037,14 @@
                     score: `池新增 +${score}`
                 });
             }
+        } else if (type === '特別') {
+            const winner = winners[0];
+            const baseScore = winnerScores[winner];
+            debtHistory.push({
+                text: `${formatPlayerForLog(winner)}特別 (${baseScore}番)`,
+                detail: `特別計分：其餘三家各付 ${baseScore} 番，不建立或改變拉莊`,
+                score: `+${baseScore * 3}`
+            });
         } else if (type === '自摸') {
             const winner = winners[0];
             const baseScore = winnerScores[winner];
