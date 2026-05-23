@@ -36,7 +36,7 @@
             padding-bottom: 15px;
             border-bottom: 2px solid var(--border);
         }
-        
+
         /* 分頁標籤樣式 */
         .tabs {
             display: flex;
@@ -118,7 +118,7 @@
             gap: 15px;
         }
         .form-group label { font-weight: bold; width: 120px; }
-        select, input[type="number"] {
+        select, input[type="number"], input[type="text"] {
             padding: 8px 12px;
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -155,6 +155,21 @@
             padding: 15px;
             text-align: center;
         }
+        .name-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .name-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-weight: bold;
+        }
+        .name-field input {
+            width: 100%;
+            box-sizing: border-box;
+        }
 
         /* 歷史紀錄 */
         .history-section { border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
@@ -176,25 +191,44 @@
 
     <!-- ================= 分頁一：當局拉莊計分 ================= -->
     <div id="game-tab" class="tab-content active">
+        <!-- 玩家名稱設定 -->
+        <div class="control-section">
+            <h3 style="margin-top:0;">玩家名稱設定</h3>
+            <div class="name-grid">
+                <label class="name-field">東家
+                    <input type="text" id="name-東" placeholder="東家" oninput="renamePlayer('東', this.value)">
+                </label>
+                <label class="name-field">南家
+                    <input type="text" id="name-南" placeholder="南家" oninput="renamePlayer('南', this.value)">
+                </label>
+                <label class="name-field">西家
+                    <input type="text" id="name-西" placeholder="西家" oninput="renamePlayer('西', this.value)">
+                </label>
+                <label class="name-field">北家
+                    <input type="text" id="name-北" placeholder="北家" oninput="renamePlayer('北', this.value)">
+                </label>
+            </div>
+        </div>
+
         <!-- 實時四家拉莊狀態 -->
         <div class="player-grid">
             <div class="player-card is-dealer" id="card-東">
-                <div class="player-name">東家 (莊)</div>
-                <div class="player-status-text">連莊中</div>
-                <div class="debt-pool-val" style="color:#ecc94b;">-</div>
+                <div class="player-name" id="display-name-東">東家 (莊)</div>
+                <div id="status-東" class="player-status-text">連莊中</div>
+                <div id="pool-東" class="debt-pool-val" style="color:#ecc94b;">0 番</div>
             </div>
             <div class="player-card" id="card-南">
-                <div class="player-name">南家</div>
+                <div class="player-name" id="display-name-南">南家</div>
                 <div id="status-南" class="player-status-text">閒家</div>
                 <div id="pool-南" class="debt-pool-val">0 番</div>
             </div>
             <div class="player-card" id="card-西">
-                <div class="player-name">西家</div>
+                <div class="player-name" id="display-name-西">西家</div>
                 <div id="status-西" class="player-status-text">閒家</div>
                 <div id="pool-西" class="debt-pool-val">0 番</div>
             </div>
             <div class="player-card" id="card-北">
-                <div class="player-name">北家</div>
+                <div class="player-name" id="display-name-北">北家</div>
                 <div id="status-北" class="player-status-text">閒家</div>
                 <div id="pool-北" class="debt-pool-val">0 番</div>
             </div>
@@ -202,21 +236,27 @@
 
         <!-- 動態割禾青專區 -->
         <div id="surrenderArea" class="surrender-container" style="display: none;">
+            <!-- 東家割禾青 -->
+            <div id="surrenderBox-東" class="surrender-box" style="display:none;">
+                <strong id="surrender-title-東" style="color:var(--accent);">東家可選擇清算</strong>
+                <div style="margin: 5px 0;">累積債務：<span id="label-debt-東" style="font-weight:bold;">0</span> 番</div>
+                <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('東')">割禾青 (全數認輸離場)</button>
+            </div>
             <!-- 南家割禾青 -->
             <div id="surrenderBox-南" class="surrender-box" style="display:none;">
-                <strong style="color:var(--accent);">南家可選擇清算</strong>
+                <strong id="surrender-title-南" style="color:var(--accent);">南家可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-南" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('南')">割禾青 (全數認輸離場)</button>
             </div>
             <!-- 西家割禾青 -->
             <div id="surrenderBox-西" class="surrender-box" style="display:none;">
-                <strong style="color:var(--accent);">西家可選擇清算</strong>
+                <strong id="surrender-title-西" style="color:var(--accent);">西家可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-西" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('西')">割禾青 (全數認輸離場)</button>
             </div>
             <!-- 北家割禾青 -->
             <div id="surrenderBox-北" class="surrender-box" style="display:none;">
-                <strong style="color:var(--accent);">北家可選擇清算</strong>
+                <strong id="surrender-title-北" style="color:var(--accent);">北家可選擇清算</strong>
                 <div style="margin: 5px 0;">累積債務：<span id="label-debt-北" style="font-weight:bold;">0</span> 番</div>
                 <button class="btn btn-danger" style="padding:6px; font-size:0.9rem;" onclick="executeSurrender('北')">割禾青 (全數認輸離場)</button>
             </div>
@@ -228,10 +268,10 @@
             <div class="form-group">
                 <label>贏家：</label>
                 <select id="winnerSelect" onchange="toggleLoserField()">
-                    <option value="東">東家 (莊)</option>
-                    <option value="南">南家</option>
-                    <option value="西">西家</option>
-                    <option value="北">北家</option>
+                    <option id="winner-option-東" value="東">東家 (莊)</option>
+                    <option id="winner-option-南" value="南">南家</option>
+                    <option id="winner-option-西" value="西">西家</option>
+                    <option id="winner-option-北" value="北">北家</option>
                 </select>
             </div>
             <div class="form-group">
@@ -244,10 +284,10 @@
             <div class="form-group" id="loserGroup" style="display:none;">
                 <label>輸家 (放銃)：</label>
                 <select id="loserSelect">
-                    <option value="南">南家</option>
-                    <option value="西">西家</option>
-                    <option value="北">北家</option>
-                    <option value="東">東家</option>
+                    <option id="loser-option-南" value="南">南家</option>
+                    <option id="loser-option-西" value="西">西家</option>
+                    <option id="loser-option-北" value="北">北家</option>
+                    <option id="loser-option-東" value="東">東家</option>
                 </select>
             </div>
             <div class="form-group">
@@ -279,22 +319,22 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>東家 (固定莊)</strong></td>
+                    <td><strong id="leader-name-東">東家 (固定莊)</strong></td>
                     <td id="total-東">0</td>
-                    <td><span style="color:#ecc94b; font-weight:bold;">莊家</span></td>
+                    <td id="global-status-東"><span style="color:#ecc94b; font-weight:bold;">莊家</span></td>
                 </tr>
                 <tr>
-                    <td><strong>南家</strong></td>
+                    <td><strong id="leader-name-南">南家</strong></td>
                     <td id="total-南">0</td>
                     <td id="global-status-南">正常</td>
                 </tr>
                 <tr>
-                    <td><strong>西家</strong></td>
+                    <td><strong id="leader-name-西">西家</strong></td>
                     <td id="total-西">0</td>
                     <td id="global-status-西">正常</td>
                 </tr>
                 <tr>
-                    <td><strong>北家</strong></td>
+                    <td><strong id="leader-name-北">北家</strong></td>
                     <td id="total-北">0</td>
                     <td id="global-status-北">正常</td>
                 </tr>
@@ -307,16 +347,118 @@
 </div>
 
 <script>
+    const PLAYERS = ['東', '南', '西', '北'];
+    const DEFAULT_NAMES = { '東': '東家', '南': '南家', '西': '西家', '北': '北家' };
+
     // 橫跨多局的總分數儲存庫
     let globalScores = { '東': 0, '南': 0, '西': 0, '北': 0 };
+    let playerNames = { ...DEFAULT_NAMES };
 
-    // 當前拉莊局獨立債務池
-    let playerDebtPools = { '南': 0, '西': 0, '北': 0 };
-    let isLaZhuangActive = { '南': false, '西': false, '北': false };
+    // 當前拉莊局獨立債務池：第一層為拉莊者，第二層為被拉莊者。
+    let laZhuangPools = createEmptyDebtPools();
     let debtHistory = [];
 
     function roundUp(val) { return Math.ceil(val); }   // 拉大
     function roundDown(val) { return Math.floor(val); } // 劈小
+
+    function createEmptyDebtPools() {
+        const pools = {};
+        for (let creditor of PLAYERS) {
+            pools[creditor] = {};
+            for (let debtor of PLAYERS) {
+                if (debtor !== creditor) pools[creditor][debtor] = 0;
+            }
+        }
+        return pools;
+    }
+
+    function escapeHTML(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getPlayerName(player) {
+        const customName = (playerNames[player] || '').trim();
+        return customName || DEFAULT_NAMES[player];
+    }
+
+    function formatPlayer(player, mode = 'normal') {
+        const name = getPlayerName(player);
+        const seatName = DEFAULT_NAMES[player];
+        const isCustom = name !== seatName;
+
+        if (player === '東' && mode === 'fixedDealer') {
+            return isCustom ? `${name} (${seatName}/固定莊)` : `${seatName} (固定莊)`;
+        }
+        if (player === '東' && mode === 'dealer') {
+            return isCustom ? `${name} (${seatName}/莊)` : `${seatName} (莊)`;
+        }
+        return isCustom ? `${name} (${seatName})` : seatName;
+    }
+
+    function formatPlayerForLog(player) {
+        const name = getPlayerName(player);
+        const seatName = DEFAULT_NAMES[player];
+        return name === seatName ? seatName : `${name}(${seatName})`;
+    }
+
+    function renamePlayer(player, value) {
+        playerNames[player] = value.trim() || DEFAULT_NAMES[player];
+        updatePlayerLabels();
+        updateUI();
+    }
+
+    function updatePlayerLabels() {
+        for (let p of PLAYERS) {
+            document.getElementById(`display-name-${p}`).innerText = formatPlayer(p, p === '東' ? 'dealer' : 'normal');
+            document.getElementById(`leader-name-${p}`).innerText = formatPlayer(p, p === '東' ? 'fixedDealer' : 'normal');
+            document.getElementById(`winner-option-${p}`).innerText = formatPlayer(p, p === '東' ? 'dealer' : 'normal');
+            document.getElementById(`loser-option-${p}`).innerText = formatPlayer(p, p === '東' ? 'dealer' : 'normal');
+            document.getElementById(`surrender-title-${p}`).innerText = `${formatPlayerForLog(p)}可選擇清算`;
+        }
+    }
+
+    function getIncomingDebts(player) {
+        return PLAYERS
+            .filter(creditor => creditor !== player && laZhuangPools[creditor][player] > 0)
+            .map(creditor => ({
+                creditor,
+                debtor: player,
+                amount: laZhuangPools[creditor][player]
+            }));
+    }
+
+    function getOutgoingDebts(player) {
+        return PLAYERS
+            .filter(debtor => debtor !== player && laZhuangPools[player][debtor] > 0)
+            .map(debtor => ({
+                creditor: player,
+                debtor,
+                amount: laZhuangPools[player][debtor]
+            }));
+    }
+
+    function totalDebt(debts) {
+        return debts.reduce((sum, debt) => sum + debt.amount, 0);
+    }
+
+    function clearInactiveCreditors(winner) {
+        for (let creditor of PLAYERS) {
+            if (creditor === winner) continue;
+            for (let debtor of PLAYERS) {
+                if (debtor !== creditor) laZhuangPools[creditor][debtor] = 0;
+            }
+        }
+    }
+
+    function addLaZhuangDebt(creditor, debtor, amount) {
+        if (creditor === debtor) return;
+        laZhuangPools[creditor][debtor] += amount;
+    }
 
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -337,6 +479,7 @@
         const baseScore = parseInt(document.getElementById('baseScoreInput').value) || 0;
 
         if (baseScore <= 0) return alert('請輸入有效番數');
+        if (type === '食和' && winner === loser) return alert('贏家輸家不能相同');
 
         // 先計算當局的基本輸贏（計入總分榜）
         let roundPnl = { '東': 0, '南': 0, '西': 0, '北': 0 };
@@ -346,33 +489,27 @@
                 if (p !== winner) roundPnl[p] -= baseScore;
             }
         } else {
-            if (winner === loser) return alert('贏家輸家不能相同');
             roundPnl[winner] += baseScore;
             roundPnl[loser] -= baseScore;
         }
 
         // 【功能：劈（反殺）邏輯判斷】
-        let isPipiTriggered = false;
-        let pipiBonusFromDealer = 0;
+        const pipiDebts = getIncomingDebts(winner);
+        const isPipiTriggered = pipiDebts.length > 0;
 
-        if ((winner === '南' || winner === '西' || winner === '北') && isLaZhuangActive[winner]) {
-            isPipiTriggered = true;
-            let originalDebt = playerDebtPools[winner];
-            pipiBonusFromDealer = roundDown(originalDebt / 2); // 反殺成功，拉莊累積債務直接砍半
-            
-            // 砍掉的一半轉化為盈利，由莊家（東）額外賠出
-            roundPnl[winner] += pipiBonusFromDealer;
-            roundPnl['東'] -= pipiBonusFromDealer;
+        for (let debt of pipiDebts) {
+            const pipiBonus = roundDown(debt.amount / 2); // 反殺成功，拉莊累積債務直接砍半
+            roundPnl[winner] += pipiBonus;
+            roundPnl[debt.creditor] -= pipiBonus;
 
             debtHistory.push({
-                text: `${winner}家成功「劈（反殺復仇）」！`,
-                detail: `${winner}家和牌，原本拉莊累積 ${originalDebt} 番直接砍半結算！`,
-                score: `反殺獎勵 (+${pipiBonusFromDealer})`
+                text: `${formatPlayerForLog(winner)}成功「劈（反殺復仇）」！`,
+                detail: `原本被${formatPlayerForLog(debt.creditor)}拉莊累積 ${debt.amount} 番，直接砍半結算！`,
+                score: `反殺獎勵 (+${pipiBonus})`
             });
 
-            // 解除贏家的被拉狀態
-            isLaZhuangActive[winner] = false;
-            playerDebtPools[winner] = 0;
+            // 解除贏家對該拉莊者的被拉狀態
+            laZhuangPools[debt.creditor][winner] = 0;
         }
 
         // 將這局的基本輸贏計入總分榜
@@ -380,98 +517,75 @@
             globalScores[p] += roundPnl[p];
         }
 
-        // --- 東家（莊家）贏牌：拉莊與滾雪球邏輯 ---
-        if (winner === '東') {
-            if (type === '食和') {
-                // 東食閒家：啟動或疊加拉莊
-                isLaZhuangActive[loser] = true;
-                playerDebtPools[loser] += baseScore;
+        // 未能繼續和牌的拉莊者，其既有拉莊關係解除。
+        clearInactiveCreditors(winner);
 
-                debtHistory.push({
-                    text: `東食${loser} (放銃拉莊)`,
-                    detail: `${loser}家全包放銃，番數併入拉莊池`,
-                    score: `+${baseScore}`
-                });
-            } 
-            else if (type === '自摸') {
-                // 修改點：自摸也會對【所有閒家】發動或疊加拉莊！
-                debtHistory.push({
-                    text: `東家自摸 (全員拉莊/滾雪球)`,
-                    detail: `東家自摸，三家全包入池或疊加拉大`,
-                    score: `+${baseScore * 3}`
-                });
+        if (type === '食和') {
+            addLaZhuangDebt(winner, loser, baseScore);
 
-                for (let p of ['南', '西', '北']) {
-                    if (isLaZhuangActive[p]) {
-                        // 本來就被拉：公式不變（當局自摸 + 歷史池折半拉大）
-                        let prevDebt = playerDebtPools[p];
-                        let transferScore = roundUp(prevDebt / 2);
-                        let addedDebt = baseScore + transferScore;
-                        playerDebtPools[p] += addedDebt;
+            debtHistory.push({
+                text: `${formatPlayerForLog(winner)}食${formatPlayerForLog(loser)} (放銃拉莊)`,
+                detail: `${formatPlayerForLog(loser)}放銃，番數併入${formatPlayerForLog(winner)}的拉莊池`,
+                score: `池新增 +${baseScore}`
+            });
+        } else if (type === '自摸') {
+            // 任何一家自摸都會對其餘三家建立或疊加拉莊。
+            debtHistory.push({
+                text: `${formatPlayerForLog(winner)}自摸 (全員拉莊/滾雪球)`,
+                detail: `${formatPlayerForLog(winner)}自摸，三家全包入池或疊加拉大`,
+                score: `+${baseScore * 3}`
+            });
 
-                        debtHistory.push({
-                            text: `└─ ${p}家債務疊加`,
-                            detail: `自摸(${baseScore}) + 歷史池折半拉大(⌈${prevDebt}/2⌉ = ${transferScore})`,
-                            score: `池新增 +${addedDebt}`
-                        });
-                    } else {
-                        // 本來沒被拉：自摸直接「啟動」對該閒家的拉莊！
-                        isLaZhuangActive[p] = true;
-                        playerDebtPools[p] = baseScore;
+            for (let p of PLAYERS.filter(player => player !== winner)) {
+                if (laZhuangPools[winner][p] > 0) {
+                    // 本來就被拉：公式不變（當局自摸 + 歷史池折半拉大）
+                    let prevDebt = laZhuangPools[winner][p];
+                    let transferScore = roundUp(prevDebt / 2);
+                    let addedDebt = baseScore + transferScore;
+                    laZhuangPools[winner][p] += addedDebt;
 
-                        debtHistory.push({
-                            text: `└─ ${p}家新被拉莊`,
-                            detail: `東自摸直接建立拉莊關係`,
-                            score: `池新增 +${baseScore}`
-                        });
-                    }
-                }
-            }
-        } 
-        // --- 閒家（南/西/北）贏牌 ---
-        else {
-            if (!isPipiTriggered) {
-                debtHistory.push({
-                    text: type === '自摸' ? `${winner}自摸` : `${winner}食${loser}`,
-                    detail: type === '自摸' ? `正常三家分攤` : `正常放銃`,
-                    score: `+${type === '自摸' ? baseScore * 3 : baseScore}`
-                });
-            }
-            
-            // 東家落敗，除了剛剛成功「劈」到安全退場的贏家外，
-            // 其餘未贏牌閒家的拉莊狀態全部宣告解除，債務清空
-            for (let p of ['南', '西', '北']) {
-                if (p !== winner) {
-                    isLaZhuangActive[p] = false;
-                    playerDebtPools[p] = 0;
+                    debtHistory.push({
+                        text: `└─ ${formatPlayerForLog(p)}債務疊加`,
+                        detail: `自摸(${baseScore}) + 歷史池折半拉大(⌈${prevDebt}/2⌉ = ${transferScore})`,
+                        score: `池新增 +${addedDebt}`
+                    });
+                } else {
+                    // 本來沒被拉：自摸直接「啟動」對該家的拉莊！
+                    laZhuangPools[winner][p] = baseScore;
+
+                    debtHistory.push({
+                        text: `└─ ${formatPlayerForLog(p)}新被拉莊`,
+                        detail: `${formatPlayerForLog(winner)}自摸直接建立拉莊關係`,
+                        score: `池新增 +${baseScore}`
+                    });
                 }
             }
         }
 
         updateUI();
         if (isPipiTriggered) {
-            alert(`${winner}家成功反殺「劈」！原本拉莊債務已成功砍半結算！`);
+            alert(`${formatPlayerForLog(winner)}成功反殺「劈」！原本拉莊債務已成功砍半結算！`);
         }
     }
 
     // 【功能：割禾青（全額支付）】
     function executeSurrender(player) {
-        if (!isLaZhuangActive[player]) return;
+        const incomingDebts = getIncomingDebts(player);
+        if (incomingDebts.length === 0) return;
 
-        let currentDebt = playerDebtPools[player];
-        let finalSettlement = currentDebt; 
+        let finalSettlement = 0;
+        for (let debt of incomingDebts) {
+            finalSettlement += debt.amount;
+            globalScores[debt.creditor] += debt.amount;
+            globalScores[player] -= debt.amount;
+            laZhuangPools[debt.creditor][player] = 0;
+        }
 
-        globalScores['東'] += finalSettlement;
-        globalScores[player] -= finalSettlement;
-
-        alert(`【${player}家 割禾青結算成功】\n累積總債務：${currentDebt} 番\n結清離場 -> 支付：${finalSettlement} 番！`);
-
-        isLaZhuangActive[player] = false;
-        playerDebtPools[player] = 0;
+        alert(`【${formatPlayerForLog(player)} 割禾青結算成功】\n累積總債務：${finalSettlement} 番\n結清離場 -> 支付：${finalSettlement} 番！`);
 
         debtHistory.push({
-            text: `${player}家選擇「割禾青」`,
-            detail: `認輸結清，支付完整累積番數離場`,
+            text: `${formatPlayerForLog(player)}選擇「割禾青」`,
+            detail: `認輸結清，支付完整累積番數給拉莊者`,
             score: `-${finalSettlement}`
         });
 
@@ -480,42 +594,77 @@
 
     function updateUI() {
         let anySurrender = false;
-        for (let p of ['南', '西', '北']) {
+        for (let p of PLAYERS) {
             const card = document.getElementById(`card-${p}`);
             const statusText = document.getElementById(`status-${p}`);
             const poolText = document.getElementById(`pool-${p}`);
             const sBox = document.getElementById(`surrenderBox-${p}`);
+            const incomingDebts = getIncomingDebts(p);
+            const outgoingDebts = getOutgoingDebts(p);
+            const incomingTotal = totalDebt(incomingDebts);
+            const outgoingTotal = totalDebt(outgoingDebts);
 
-            if (isLaZhuangActive[p]) {
+            if (incomingDebts.length > 0) {
                 card.classList.add('is-targeted');
-                statusText.innerText = '被拉莊中 ⚠️';
-                statusText.style.color = 'var(--accent)';
-                poolText.innerText = playerDebtPools[p] + ' 番';
-                
-                sBox.style.display = 'block';
-                document.getElementById(`label-debt-${p}`).innerText = playerDebtPools[p];
-                anySurrender = true;
             } else {
                 card.classList.remove('is-targeted');
-                statusText.innerText = '閒家';
+            }
+
+            const statusParts = [];
+            if (outgoingDebts.length > 0) {
+                statusParts.push(`拉莊中：${outgoingDebts.map(debt => `${formatPlayerForLog(debt.debtor)} ${debt.amount}番`).join('、')}`);
+            }
+            if (incomingDebts.length > 0) {
+                statusParts.push(`被拉莊：${incomingDebts.map(debt => `${formatPlayerForLog(debt.creditor)} ${debt.amount}番`).join('、')}`);
+            }
+
+            if (statusParts.length > 0) {
+                statusText.innerHTML = statusParts.map(escapeHTML).join('<br>');
+                statusText.style.color = incomingDebts.length > 0 ? 'var(--accent)' : 'var(--success)';
+            } else {
+                statusText.innerText = p === '東' ? '連莊中' : '閒家';
                 statusText.style.color = '#718096';
+            }
+
+            if (incomingTotal > 0 && outgoingTotal > 0) {
+                poolText.innerText = `被拉 ${incomingTotal} / 拉出 ${outgoingTotal} 番`;
+            } else if (incomingTotal > 0) {
+                poolText.innerText = `被拉 ${incomingTotal} 番`;
+            } else if (outgoingTotal > 0) {
+                poolText.innerText = `拉出 ${outgoingTotal} 番`;
+            } else {
                 poolText.innerText = '0 番';
+            }
+            poolText.style.color = incomingTotal > 0 ? 'var(--accent)' : (outgoingTotal > 0 ? 'var(--success)' : (p === '東' ? '#ecc94b' : 'var(--accent)'));
+
+            if (incomingDebts.length > 0) {
+                sBox.style.display = 'block';
+                document.getElementById(`label-debt-${p}`).innerText = incomingTotal;
+                anySurrender = true;
+            } else {
                 sBox.style.display = 'none';
             }
         }
 
         document.getElementById('surrenderArea').style.display = anySurrender ? 'grid' : 'none';
 
-        for (let p in globalScores) {
+        for (let p of PLAYERS) {
             const totalEl = document.getElementById(`total-${p}`);
+            const incomingDebts = getIncomingDebts(p);
+            const outgoingDebts = getOutgoingDebts(p);
             totalEl.innerText = (globalScores[p] >= 0 ? '+' : '') + globalScores[p];
             totalEl.className = globalScores[p] >= 0 ? 'score-pos' : 'score-neg';
-            
-            if (p !== '東') {
-                document.getElementById(`global-status-${p}`).innerHTML = isLaZhuangActive[p] 
-                    ? `<span style="color:var(--accent); font-weight:bold;">被拉莊 (${playerDebtPools[p]}番)</span>` 
-                    : '正常';
+
+            const statusEl = document.getElementById(`global-status-${p}`);
+            const statusParts = [];
+            if (p === '東') statusParts.push('<span style="color:#ecc94b; font-weight:bold;">莊家</span>');
+            if (incomingDebts.length > 0) {
+                statusParts.push(`<span style="color:var(--accent); font-weight:bold;">被拉莊 (${escapeHTML(incomingDebts.map(debt => `${formatPlayerForLog(debt.creditor)} ${debt.amount}番`).join('、'))})</span>`);
             }
+            if (outgoingDebts.length > 0) {
+                statusParts.push(`<span style="color:var(--success); font-weight:bold;">拉莊中 (${escapeHTML(outgoingDebts.map(debt => `${formatPlayerForLog(debt.debtor)} ${debt.amount}番`).join('、'))})</span>`);
+            }
+            statusEl.innerHTML = statusParts.length > 0 ? statusParts.join('<br>') : '正常';
         }
 
         const listEl = document.getElementById('historyList');
@@ -525,10 +674,10 @@
             listEl.innerHTML = debtHistory.map(item => `
                 <li class="history-item">
                     <div>
-                        <strong>${item.text}</strong>
-                        <div class="formula">${item.detail}</div>
+                        <strong>${escapeHTML(item.text)}</strong>
+                        <div class="formula">${escapeHTML(item.detail)}</div>
                     </div>
-                    <span style="font-weight:bold;">${item.score}</span>
+                    <span style="font-weight:bold;">${escapeHTML(item.score)}</span>
                 </li>
             `).reverse().join('');
         }
@@ -537,16 +686,15 @@
     function resetAllScores() {
         if (confirm('確定要清除所有人橫跨多局的「總分數」排行榜嗎？')) {
             globalScores = { '東': 0, '南': 0, '西': 0, '北': 0 };
-            for (let p of ['南', '西', '北']) {
-                isLaZhuangActive[p] = false;
-                playerDebtPools[p] = 0;
-            }
+            laZhuangPools = createEmptyDebtPools();
             debtHistory = [];
             updateUI();
         }
     }
 
+    updatePlayerLabels();
     toggleLoserField();
+    updateUI();
 </script>
 </body>
 </html>
